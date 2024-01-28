@@ -1,13 +1,10 @@
 from flask import Flask, send_from_directory, render_template
 from flask_session import Session
 
-from handlers import handlers
-
 app = Flask(__name__)
 SESSION_TYPE = 'redis'
 app.config.from_object(__name__)
 Session(app)
-
 
 @app.get("/")
 def home():

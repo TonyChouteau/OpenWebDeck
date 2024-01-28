@@ -1,40 +1,38 @@
 import asyncio
+import websockets
 from websockets.server import serve
 import json
 
-from handlers import handlers
+from api.Context import Context
+
+context = Context()
 
 
 async def handler(websocket):
-    async for message in websocket:
-        if message[0] == "{":
-            data = json.loads(message)
-            print("Message received :")
-            print(data, end="\n\n")
+    try:
+        async for message in websocket:
+            await context.clear_clients()
 
-            handler_value = None
-            for handler in handlers.config:
-                if handler.id == data.get("id"):
-                    print("Handler : " + handler.id)
-                    handler.set_value(data.get("value"))
-                    handler.execute()
-                    handler_value = handler.get_value()
+            if len(message) > 0 and message[0] == "{":
+                try:
+                    data = json.loads(message)
+                except:
+                    continue
 
-            print("\n")
-            if handler_value is not None:
-                await websocket.send(json.dumps({
-                    "data": data,
-                    "id": data.get("id"),
-                    "value": handler_value
-                }))
-            else:
-                await websocket.send(json.dumps({
-                    "id": None,
-                    "value": None,
-                    "error": "No handler for this id"
-                }))
-        else:
-            print("Error, message is not JSON", end="\n\n")
+                message_id = data.get("message_id")
+                if message_id == "client_init":
+                    context.connect_client(data, websocket)
+                elif message_id == "client_message":
+                    context.send_to_web(data, websocket)
+
+                elif message_id == "web_connect":
+                    context.connect_web(data, websocket)
+                elif message_id == "web_message":
+                    session = context.connect_web(data)
+                    session.send_to_client(data)
+
+    except websockets.ConnectionClosed:
+        pass
 
 
 async def main():

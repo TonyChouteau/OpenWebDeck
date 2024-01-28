@@ -5,11 +5,19 @@ $(document).ready(_ => {
 
     const onSocketOpen = _ => {
         socket.addEventListener("message", event => {
-            console.log(event.data);
+            if (event.data.length === 0) {
+                console.log("/");
+                return
+            }
+            try {
+                JSON.parse(event.data);
+            } catch (e) {
+                console.log("Data is not json");
+            }
         })
-        socket.send("not handled");
+        console.log(socket);
         socket.send(JSON.stringify({
-            "id": "switch_branch",
+            "message_id": "web_connect",
             "value": "dev"
         }));
     }
