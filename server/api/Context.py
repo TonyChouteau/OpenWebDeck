@@ -2,7 +2,6 @@ from api.Session import Session
 
 
 class Context:
-
     def __init__(self):
         self.clients = {}
         self.web = {}
@@ -15,6 +14,7 @@ class Context:
                 session = self.clients[client_id]
                 try:
                     await session.client_websocket.send("")
+                    # Web
                     web_websockets = session.get_web_websockets()
                     web_websockets_after = []
                     for web_websocket in web_websockets:
@@ -50,7 +50,7 @@ class Context:
 
     def send_to_web(self, data, websocket):
         session = self.connect_client(data, websocket)
-        for websocket in session.web_websockets():
+        for websocket in session.get_web_websockets():
             try:
                 websocket.send(data)
             except:
@@ -62,5 +62,18 @@ class Context:
         if self.clients.get(uuid):
             print(f"[CONTEXT] Message from web, uuid: {uuid}")
             session = self.clients[uuid]
+            if websocket in session.web_websockets:
+                return session
+            else:
+                session.add_web_websocket(websocket)
+            print(len(session.get_web_websockets()))
         else:
             return None
+
+    def send_to_client(self, data, websocket):
+        session = self.connect_client(data, websocket)
+        if session:
+            try:
+                session.get_client_websocket().send(data)
+            except:
+                pass

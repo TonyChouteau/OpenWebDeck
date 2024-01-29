@@ -1,6 +1,6 @@
 import asyncio
-import websockets
-from websockets.server import serve
+import websocket
+from websocket.server import serve
 import json
 
 from api.Context import Context
@@ -28,8 +28,7 @@ async def handler(websocket):
                 elif message_id == "web_connect":
                     context.connect_web(data, websocket)
                 elif message_id == "web_message":
-                    session = context.connect_web(data)
-                    session.send_to_client(data)
+                    context.send_to_client(data, websocket)
 
     except websockets.ConnectionClosed:
         pass

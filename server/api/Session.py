@@ -4,6 +4,9 @@ class Session:
         self.client_websocket = websocket
         self.web_websockets = []
 
+    def get_client_websocket(self):
+        return self.client_websocket
+
     # Web websocket handlers
     def add_web_websocket(self, websocket):
         self.web_websockets.append(websocket)

@@ -18,7 +18,7 @@ $(document).ready(_ => {
         console.log(socket);
         socket.send(JSON.stringify({
             "message_id": "web_connect",
-            "value": "dev"
+            "uuid": "4018d094-d39a-45d8-b251-6b08dc311cee"
         }));
     }
     const startWebsocket = _ => {
