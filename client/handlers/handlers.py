@@ -1,4 +1,5 @@
-from handler.HandlerBranch import HandlerBranch
+from handlers.HandlerPong import HandlerPong
 
-config = [
+handler_list = [
+    HandlerPong()
 ]

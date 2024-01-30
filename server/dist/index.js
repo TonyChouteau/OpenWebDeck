@@ -2,6 +2,7 @@
 
 $(document).ready(_ => {
     let socket;
+    let uuid;
 
     const onSocketOpen = _ => {
         socket.addEventListener("message", event => {
@@ -9,17 +10,37 @@ $(document).ready(_ => {
                 console.log("/");
                 return
             }
+            let data;
             try {
-                JSON.parse(event.data);
+                data = JSON.parse(event.data);
+                console.log(data);
             } catch (e) {
                 console.log("Data is not json");
             }
+            if (data) {
+                if (data.message_id === "config") {
+                    displayConfig(data.list, (id, value) => {
+                        socket.send(JSON.stringify({
+                            uuid: uuid,
+                            message_id: "web_message",
+                            id: id,
+                            value: value
+                        }));
+                    });
+                } else if (data.message_id === "client_message") {
+                    console.log("Output", data);
+                    updateConfig(data);
+                }
+            }
         })
-        console.log(socket);
-        socket.send(JSON.stringify({
-            "message_id": "web_connect",
-            "uuid": "4018d094-d39a-45d8-b251-6b08dc311cee"
-        }));
+
+        displayLogin(_uuid => {
+            uuid = _uuid
+            socket.send(JSON.stringify({
+                message_id: "web_connect",
+                uuid: _uuid
+            }));
+        });
     }
     const startWebsocket = _ => {
         setTimeout(_ => {

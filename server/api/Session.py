@@ -1,11 +1,21 @@
+import json
+
+
 class Session:
-    def __init__(self, uuid, websocket):
+    def __init__(self, uuid, websocket, config):
         self.uuid = uuid
         self.client_websocket = websocket
+        self.config = config
+
         self.web_websockets = []
 
+    # Client
     def get_client_websocket(self):
         return self.client_websocket
+
+    # Config
+    def get_str_config(self):
+        return json.dumps(self.config)
 
     # Web websocket handlers
     def add_web_websocket(self, websocket):
@@ -16,4 +26,3 @@ class Session:
 
     def set_web_websockets(self, _web_websockets):
         self.web_websockets = _web_websockets
-

@@ -25,44 +25,54 @@ async def process_message(websocket, message):
     print("Message received :")
     print(data, end="\n\n")
 
-    handler_value = None
-    for handler in handlers.config:
+    output_value = None
+    for handler in handlers.handler_list:
         if handler.id == data.get("id"):
             print("Handler : " + handler.id)
-            handler.set_value(data.get("value"))
-            handler.execute()
-            handler_value = handler.get_value()
+            output_value = handler.execute(data.get("value"))
 
     print("\n")
-    if handler_value is not None:
+    if output_value is not None:
         await websocket.send(json.dumps({
+            "uuid": str(UUID),
+            "message_id": "client_message",
             "data": data,
             "id": data.get("id"),
-            "value": handler_value
+            "value": output_value
         }))
     else:
         await websocket.send(json.dumps({
+            "uuid": str(UUID),
+            "message_id": "client_message",
+            "data": data,
             "id": None,
             "value": None,
-            "error": "No handler for this id"
+            "error": "No handler for this id or the execution returned nothing"
         }))
 
 
 async def main():
     async for _websocket in websockets.connect("ws://localhost:433"):
-        print("\nWaiting for the server...")
+        config = []
+        for handler in handlers.handler_list:
+            config.append(handler.get_config())
+
+        print("Waiting for the server...")
         await _websocket.send(json.dumps({
             "message_id": "client_init",
-            "uuid": str(UUID)
+            "uuid": str(UUID),
+            "config": {
+                "message_id": "config",
+                "list": config
+            }
         }))
         print("Connected to the server !\n")
+        print(f"\nUUID : {UUID}\n")
         try:
             async for message in _websocket:
                 await process_message(_websocket, message)
 
         except websockets.ConnectionClosed:
             continue
-
-print(f"\nUUID : {UUID}\n")
 
 asyncio.run(main())

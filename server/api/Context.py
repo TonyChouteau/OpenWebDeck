@@ -1,3 +1,4 @@
+import json
 from api.Session import Session
 
 
@@ -6,7 +7,7 @@ class Context:
         self.clients = {}
         self.web = {}
 
-    # Client
+    # Clear client & web websockets when timeout
     async def clear_clients(self):
         try:
             client_to_delete = []
@@ -25,55 +26,58 @@ class Context:
                             pass
                     session.set_web_websockets(web_websockets_after)
 
-                    if len(web_websockets) != 0:
-                        print(len(session.get_web_websockets()))
                 except:
                     client_to_delete.append(session.uuid)
 
             for uuid in client_to_delete:
                 del self.clients[uuid]
+                print(f"[CONTEXT] Removing client, uuid: {uuid} ({len(self.clients)} clients connected)")
         except:
             pass
 
+    # Connect client
     def connect_client(self, data, websocket):
         uuid = data.get("uuid")
         if self.clients.get(uuid):
-            print(f"[CONTEXT] Message from client, uuid: {uuid}")
             session = self.clients[uuid]
             return session
         else:
-            session = Session(uuid, websocket)
+            session = Session(uuid, websocket, data.get("config"))
             self.clients[uuid] = session
 
             print(f"[CONTEXT] New client : {uuid} ({len(self.clients)} clients connected)")
             return session
 
-    def send_to_web(self, data, websocket):
-        session = self.connect_client(data, websocket)
-        for websocket in session.get_web_websockets():
-            try:
-                websocket.send(data)
-            except:
-                pass
-
-    # Web
-    def connect_web(self, data, websocket):
+    # Connect web
+    async def connect_web(self, data, websocket):
         uuid = data.get("uuid")
         if self.clients.get(uuid):
-            print(f"[CONTEXT] Message from web, uuid: {uuid}")
+            print(f"[CONTEXT] New web connected, uuid: {uuid}")
             session = self.clients[uuid]
-            if websocket in session.web_websockets:
-                return session
-            else:
+            if websocket not in session.web_websockets:
                 session.add_web_websocket(websocket)
-            print(len(session.get_web_websockets()))
+                await websocket.send(session.get_str_config())
+            return session
         else:
             return None
 
-    def send_to_client(self, data, websocket):
+    # Client -> [Server] -> Web
+    async def send_to_web(self, data, websocket):
         session = self.connect_client(data, websocket)
+        print(f"[CONTEXT] Message from web")
+        for websocket in session.get_web_websockets():
+            try:
+                data["uuid"] = "***"
+                await websocket.send(json.dumps(data))
+            except:
+                pass
+
+    # Web -> [Server] -> Client
+    async def send_to_client(self, data, websocket):
+        session = await self.connect_web(data, websocket)
+        print(f"[CONTEXT] Message from client")
         if session:
             try:
-                session.get_client_websocket().send(data)
+                await session.get_client_websocket().send(json.dumps(data))
             except:
                 pass
