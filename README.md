@@ -11,13 +11,13 @@ Online Python Script Executor is like an online version of a stream deck, enabli
 |     Web App         |      |       Server        |      |       Client        |
 |                     |      |                     1<-----+   Send the handler  |
 |   Request UUID      +----->2    Receive UUID     |      |       config        |
-| if UUID get config  3<-----+  and Handler Config |      |                     |
-|                     |      |    from Client      |      |                     |
+|                     |      |  and Handler Config |      |                     |
+| if UUID get config  3<-----+    from Client      |      |                     |
 |   Display Handlers  |      |                     |      |                     |
 |     as Buttons      |      |                     |      |                     |
+|                     |      |                     |      |                     |
 |      onClick        +----->4   proxy to client   +----->5       Execute       |
 |   display output    7<-----+   proxy to client   6<-----+    return output    |
-|                     |      |                     |      |                     |
 +---------------------+      +---------------------+      +---------------------+
 ```
 
