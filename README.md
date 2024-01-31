@@ -39,7 +39,7 @@ The execution of the handler modifies the value on the client with the value sen
 
 ## Install the Server (Locally or on a Distant Server)
 
-Install Python 3.8+ and pip
+Install Python 3.8+, pip and pythons modules : Flask>=3.0, flask_session, websockets, asyncio
 ```bash
 python3 -m pip install flask flask_session websockets asyncio
 ```
@@ -53,7 +53,7 @@ python3 server/websocket.py # Server
 
 Add new handlers in `client/handlers/` and edit the config list in `handlers.py` to add the new handler.
 
-Install Python 3.8+ and pip
+Install Python 3.8+, pip and pythons modules : websockets, asyncio, uuid
 ```bash
 python3 -m pip install websockets asyncio uuid
 ```
