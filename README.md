@@ -6,7 +6,7 @@
 Online Python Script Executor is like an online version of a stream deck, enabling the execution of Python scripts remotely on a client machine from a web application. Users can add as many scripts (handlers) as desired to the client. The client generates a UUID necessary for the web app to connect.
 
 ## Operation
-
+```
 +---------------------+      +---------------------+      +---------------------+
 |     Web App         |      |       Server        |      |       Client        |
 |                     |      |                     1<-----+   Send the handler  |
@@ -19,7 +19,7 @@ Online Python Script Executor is like an online version of a stream deck, enabli
 |   display output    7<-----+   proxy to client   6<-----+    return output    |
 |                     |      |                     |      |                     |
 +---------------------+      +---------------------+      +---------------------+
-
+```
 
 ## Personalizing the Client
 
